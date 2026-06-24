@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: usermp
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://debian-server:3306/usermp?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: wei5877261
+  data:
+    redis:
+      host: debian-server
+      port: 6379
+      password: wei5877261
+      database: 0
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: cc.xiaowei.usermp.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+jwt:
+  secret: ${JWT_SECRET:dGhpc0lzQVZlcnlMb25nUmFuZG9tU2VjcmV0S2V5Rm9ySE1BQ1NIQTI1NkZvclRlc3RPbmx5}
+  expiration: 7200000
+
+server:
+  port: 8080

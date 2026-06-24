@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.xiaowei.usermp.mapper.UserMapper">
+
+    <!-- 完整字段（含password，内部使用） -->
+    <sql id="allColumns">
+        id, name, age, gender, password, role, insert_time, update_time, avatar, disabled, phone, email
+    </sql>
+
+    <!-- 安全字段（不含password，返回给前端） -->
+    <sql id="safeColumns">
+        id, name, age, gender, role, insert_time, update_time, avatar, disabled, phone, email
+    </sql>
+
+    <!-- 按ID查询（含password） -->
+    <select id="selectById" resultType="cc.xiaowei.usermp.entity.User">
+        SELECT <include refid="allColumns"/>
+        FROM user
+        WHERE id = #{id}
+    </select>
+
+    <!-- 按用户名查询（含password，登录用） -->
+    <select id="selectByName" resultType="cc.xiaowei.usermp.entity.User">
+        SELECT <include refid="allColumns"/>
+        FROM user
+        WHERE name = #{name}
+    </select>
+
+    <!-- 按手机号查询（含password） -->
+    <select id="selectByPhone" resultType="cc.xiaowei.usermp.entity.User">
+        SELECT <include refid="allColumns"/>
+        FROM user
+        WHERE phone = #{phone}
+    </select>
+
+    <!-- 按邮箱查询（含password） -->
+    <select id="selectByEmail" resultType="cc.xiaowei.usermp.entity.User">
+        SELECT <include refid="allColumns"/>
+        FROM user
+        WHERE email = #{email}
+    </select>
+
+    <!-- 分页查询（不含password） -->
+    <select id="selectPage" resultType="cc.xiaowei.usermp.entity.User">
+        SELECT <include refid="safeColumns"/>
+        FROM user
+        ORDER BY id ASC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <!-- 条件搜索（不含password） -->
+    <select id="selectByCondition" resultType="cc.xiaowei.usermp.entity.User">
+        SELECT <include refid="safeColumns"/>
+        FROM user
+        <where>
+            <if test="id != null">AND id = #{id}</if>
+            <if test="name != null and name != ''">AND name LIKE CONCAT('%', #{name}, '%')</if>
+            <if test="email != null and email != ''">AND email LIKE CONCAT('%', #{email}, '%')</if>
+            <if test="phone != null and phone != ''">AND phone LIKE CONCAT('%', #{phone}, '%')</if>
+        </where>
+        ORDER BY id ASC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <!-- 插入用户 -->
+    <insert id="insert" parameterType="cc.xiaowei.usermp.entity.User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user (name, age, gender, password, role, insert_time, update_time, avatar, disabled, phone, email)
+        VALUES (#{name}, #{age}, #{gender}, #{password}, #{role}, #{insertTime}, #{updateTime}, #{avatar}, #{disabled}, #{phone}, #{email})
+    </insert>
+
+    <!-- 动态更新用户 -->
+    <update id="update" parameterType="cc.xiaowei.usermp.entity.User">
+        UPDATE user
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="age != null">age = #{age},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="role != null">role = #{role},</if>
+            <if test="disabled != null">disabled = #{disabled},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 按ID删除 -->
+    <delete id="deleteById">
+        DELETE FROM user WHERE id = #{id}
+    </delete>
+
+    <!-- 统计总数 -->
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM user
+    </select>
+
+    <!-- 条件搜索结果总数 -->
+    <select id="countByCondition" resultType="long">
+        SELECT COUNT(*) FROM user
+        <where>
+            <if test="id != null">AND id = #{id}</if>
+            <if test="name != null and name != ''">AND name LIKE CONCAT('%', #{name}, '%')</if>
+            <if test="email != null and email != ''">AND email LIKE CONCAT('%', #{email}, '%')</if>
+            <if test="phone != null and phone != ''">AND phone LIKE CONCAT('%', #{phone}, '%')</if>
+        </where>
+    </select>
+
+    <!-- 检查手机号唯一性（排除自身） -->
+    <select id="countByPhoneExcludingId" resultType="int">
+        SELECT COUNT(*) FROM user
+        WHERE phone = #{phone}
+        <if test="excludeId != null">AND id != #{excludeId}</if>
+    </select>
+
+    <!-- 检查邮箱唯一性（排除自身） -->
+    <select id="countByEmailExcludingId" resultType="int">
+        SELECT COUNT(*) FROM user
+        WHERE email = #{email}
+        <if test="excludeId != null">AND id != #{excludeId}</if>
+    </select>
+
+</mapper>
