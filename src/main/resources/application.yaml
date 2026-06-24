@@ -27,7 +27,7 @@ mybatis:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 jwt:
-  secret: ${JWT_SECRET:dGhpc0lzQVZlcnlMb25nUmFuZG9tU2VjcmV0S2V5Rm9ySE1BQ1NIQTI1NkZvclRlc3RPbmx5}
+  secret: dGhpc0lzQVZlcnlMb25nUmFuZG9tU2VjcmV0S2V5Rm9ySE1BQ1NIQTI1NkZvclRlc3RPbmx5
   expiration: 7200000
 
 server:

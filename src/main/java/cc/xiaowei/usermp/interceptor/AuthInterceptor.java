@@ -71,10 +71,13 @@ public class AuthInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        // 5. 检查是否被禁用
+        // 5. 检查是否被禁用（DELETE /api/v1/user/me 自注销除外，禁用用户仍可注销）
         if (Boolean.TRUE.equals(user.getDisabled())) {
-            writeError(response, "该账号已被禁用，请联系管理员");
-            return false;
+            String path = request.getRequestURI();
+            if (!("DELETE".equalsIgnoreCase(request.getMethod()) && path.startsWith(request.getContextPath() + "/api/v1/user/me"))) {
+                writeError(response, "该账号已被禁用，请联系管理员");
+                return false;
+            }
         }
 
         // 6. 清除敏感字段，存入上下文

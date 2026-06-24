@@ -89,6 +89,10 @@ public class UserServiceImpl implements UserService {
             if (req.getName().length() > 10) {
                 throw new BusinessException("用户名最长10个字符");
             }
+            int count = userMapper.countByNameExcludingId(req.getName(), userId);
+            if (count > 0) {
+                throw new BusinessException("用户名已被占用");
+            }
             user.setName(req.getName());
             user.setAvatar(AvatarUtil.generate(req.getName()));
             hasUpdate = true;
@@ -199,6 +203,10 @@ public class UserServiceImpl implements UserService {
         if (req.getName() != null) {
             if (req.getName().length() > 10) {
                 throw new BusinessException("用户名最长10个字符");
+            }
+            int count = userMapper.countByNameExcludingId(req.getName(), targetId);
+            if (count > 0) {
+                throw new BusinessException("用户名已被占用");
             }
             updateUser.setName(req.getName());
             updateUser.setAvatar(AvatarUtil.generate(req.getName()));
@@ -311,6 +319,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void deleteSelf(Long userId, String token) {
+        // 检查是否为管理员，管理员无法注销自己
+        User currentUser = userMapper.selectById(userId);
+        if (currentUser != null && Integer.valueOf(1).equals(currentUser.getRole())) {
+            throw new BusinessException("管理员无法注销自己");
+        }
+
+        // 将当前 token 加入黑名单，使其立即失效
+        Claims claims = jwtUtil.parseTokenLenient(token);
+        if (claims != null) {
+            long remainingSeconds = jwtUtil.getRemainingSeconds(claims);
+            if (remainingSeconds > 0) {
+                redisTemplate.opsForValue().set("blacklist:" + token, "1", remainingSeconds, TimeUnit.SECONDS);
+            }
+        }
+
+        // 物理删除用户数据
+        userMapper.deleteById(userId);
+    }
+
+    @Override
     public User createUser(CreateUserRequest req) {
         // 校验用户名长度
         if (req.getName().length() > 10) {
@@ -333,6 +362,9 @@ public class UserServiceImpl implements UserService {
         }
 
         // 唯一性校验
+        if (userMapper.selectByName(req.getName()) != null) {
+            throw new BusinessException("用户名已被占用");
+        }
         if (userMapper.selectByPhone(req.getPhone()) != null) {
             throw new BusinessException("电话号码已被占用");
         }

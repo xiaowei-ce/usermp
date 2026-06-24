@@ -37,4 +37,7 @@ public interface UserService {
 
     /** 管理员新增用户 */
     User createUser(CreateUserRequest req);
+
+    /** 用户自注销（物理删除自己账号） */
+    void deleteSelf(Long userId, String token);
 }

@@ -58,4 +58,7 @@ public interface UserMapper {
 
     /** 检查邮箱唯一性（排除自身） */
     int countByEmailExcludingId(@Param("email") String email, @Param("excludeId") Long excludeId);
+
+    /** 检查用户名唯一性（排除自身） */
+    int countByNameExcludingId(@Param("name") String name, @Param("excludeId") Long excludeId);
 }

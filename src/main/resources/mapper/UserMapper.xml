@@ -122,4 +122,11 @@
         <if test="excludeId != null">AND id != #{excludeId}</if>
     </select>
 
+    <!-- 检查用户名唯一性（排除自身） -->
+    <select id="countByNameExcludingId" resultType="int">
+        SELECT COUNT(*) FROM user
+        WHERE name = #{name}
+        <if test="excludeId != null">AND id != #{excludeId}</if>
+    </select>
+
 </mapper>
